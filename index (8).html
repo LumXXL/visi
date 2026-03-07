@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="VISI — Real-time speech captioning">
+    <meta name="theme-color" content="#000000">
+    <title>VISI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'ChunkFive';
+            src: url('ChunkFive-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========================
+           SCREEN 1 — START
+           ======================== */
+
+        #start-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            background: #000;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+            padding: 12% 2rem;
+        }
+
+        #start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .header-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .wordmark {
+            font-family: 'ChunkFive', Georgia, serif;
+            font-size: 3rem;
+            font-weight: normal;
+            letter-spacing: 0.08em;
+            color: #fff;
+            user-select: none;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            color: #999;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .start-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 1px solid #fff;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.06);
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+
+        .start-btn:hover,
+        .start-btn:focus-visible {
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.12);
+        }
+
+        .start-btn:active {
+            transform: scale(0.97);
+        }
+
+        .start-btn-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: #fff;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .footer-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            max-width: 300px;
+        }
+
+        .footer-text {
+            color: #bbb;
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+            line-height: 1.5;
+            text-align: center;
+            user-select: none;
+        }
+
+        /* ========================
+           SCREEN 2 — CAPTIONING
+           ======================== */
+
+        #caption-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #caption-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #caption-text {
+            position: absolute;
+            top: 6%;
+            left: 8%;
+            right: 8%;
+            font-size: 6vw;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.3;
+            letter-spacing: 0.05em;
+            word-spacing: 0.1em;
+            user-select: none;
+        }
+
+        /*
+            Hidden div used to measure text height BEFORE
+            committing it to the visible display.
+            Same styles, same width, but invisible.
+        */
+        #caption-measure {
+            position: absolute;
+            top: 6%;
+            left: 8%;
+            right: 8%;
+            font-size: 6vw;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.3;
+            letter-spacing: 0.05em;
+            word-spacing: 0.1em;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        @media (orientation: landscape) {
+            #caption-text {
+                font-size: 8vw;
+            }
+            #caption-measure {
+                font-size: 8vw;
+            }
+        }
+
+        .word {
+            display: inline;
+            opacity: 0;
+            animation: wordFadeIn 0.12s ease-out forwards;
+        }
+
+        @keyframes wordFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* Exit button */
+        .exit-btn {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 20;
+            width: 56px;
+            height: 56px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .exit-btn.visible {
+            opacity: 0.6;
+            pointer-events: auto;
+        }
+
+        .exit-btn:hover,
+        .exit-btn:focus-visible {
+            opacity: 1;
+        }
+
+        .exit-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* Unsupported browser message */
+        #unsupported {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            color: #888;
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 15%;
+            text-align: center;
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #unsupported.show {
+            display: flex;
+        }
+
+        #unsupported strong {
+            color: #fff;
+            display: block;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Listening indicator */
+        .listening-dot {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .listening-dot.active {
+            opacity: 0.3;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.15; transform: translateX(-50%) scale(1); }
+            50%      { opacity: 0.35; transform: translateX(-50%) scale(1.3); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UNSUPPORTED BROWSER -->
+    <div id="unsupported">
+        <strong>VISI</strong>
+        This browser doesn't support speech recognition.<br>
+        Please open this page in <strong style="font-size:1rem; letter-spacing:0.1em; margin:0.5rem 0; display:inline;">Google Chrome</strong> on your phone or computer.
+    </div>
+
+    <!-- SCREEN 1 — START -->
+    <div id="start-screen">
+        <div class="header-group">
+            <div class="wordmark">visi</div>
+            <div class="tagline">Real-time captions</div>
+        </div>
+        <button class="start-btn" id="start-btn" aria-label="Start captioning">
+            <span class="start-btn-label">Turn on</span>
+        </button>
+        <div class="footer-group">
+            <div class="footer-text">A free tool that turns speech into visible text. Turn it on and go.</div>
+            <div class="footer-text">Audio is processed by your browser and is not recorded or stored.</div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2 — CAPTIONING -->
+    <div id="caption-screen">
+        <div id="caption-text"></div>
+        <div id="caption-measure" aria-hidden="true"></div>
+    </div>
+
+    <!-- EXIT BUTTON -->
+    <button class="exit-btn" id="exit-btn" aria-label="Stop captioning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+    </button>
+
+    <!-- LISTENING INDICATOR -->
+    <div class="listening-dot" id="listening-dot"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            document.getElementById('unsupported').classList.add('show');
+            document.getElementById('start-screen').style.display = 'none';
+            return;
+        }
+
+        var startScreen    = document.getElementById('start-screen');
+        var captionScreen  = document.getElementById('caption-screen');
+        var captionText    = document.getElementById('caption-text');
+        var captionMeasure = document.getElementById('caption-measure');
+        var startBtn       = document.getElementById('start-btn');
+        var exitBtn        = document.getElementById('exit-btn');
+        var listeningDot   = document.getElementById('listening-dot');
+
+        var isListening = false;
+        var recognition  = null;
+        var wakeLock     = null;
+
+        // ============================================================
+        // OVERFLOW: MEASURE-FIRST APPROACH
+        //
+        // We have a hidden div (#caption-measure) with identical
+        // styles to #caption-text. Before rendering anything visible,
+        // we write the candidate HTML into the hidden div and check
+        // if its height exceeds the available viewport space.
+        //
+        // Available height = window.innerHeight * 0.88 (6% top + 6% bottom)
+        //
+        // If it doesn't fit → clear committed text, try again with
+        // only the current sentence.
+        // ============================================================
+
+        function getAvailableHeight() {
+            return window.innerHeight * 0.88;
+        }
+
+        function wouldFit(html) {
+            captionMeasure.innerHTML = html;
+            var fits = captionMeasure.offsetHeight <= getAvailableHeight();
+            return fits;
+        }
+
+        // ============================================================
+        // MODULE 1: Speech Input
+        // ============================================================
+
+        function createRecognition() {
+            var rec = new SpeechRecognition();
+            rec.continuous       = true;
+            rec.interimResults   = true;
+            rec.lang             = 'en-US';
+            rec.maxAlternatives  = 1;
+
+            rec.onresult = function(event) {
+                var interim = '';
+                var finalTranscript = '';
+
+                for (var i = event.resultIndex; i < event.results.length; i++) {
+                    var transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interim += transcript;
+                    }
+                }
+
+                if (finalTranscript) {
+                    processText(finalTranscript, true);
+                } else if (interim) {
+                    processText(interim, false);
+                }
+            };
+
+            rec.onend = function() {
+                if (isListening) {
+                    try { rec.start(); } catch(e) {}
+                }
+            };
+
+            rec.onerror = function(event) {
+                if (event.error === 'no-speech' || event.error === 'aborted') return;
+            };
+
+            return rec;
+        }
+
+        function startListening() {
+            recognition = createRecognition();
+            isListening = true;
+            try { recognition.start(); } catch(e) {}
+        }
+
+        function stopListening() {
+            isListening = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+                recognition = null;
+            }
+        }
+
+        // ============================================================
+        // MODULE 2: Text Processing (translation slots in here later)
+        // ============================================================
+
+        function processText(text, isFinal) {
+            displayText(text, isFinal);
+        }
+
+        // ============================================================
+        // MODULE 3: Display Output
+        //
+        // 1. Build HTML for the current words
+        // 2. Test: does (committed + current) fit? → show it
+        // 3. If not: does (current alone) fit? → clear committed, show current
+        // 4. If even current alone doesn't fit → clear everything
+        // 5. On final: commit the sentence, reset word counter
+        // ============================================================
+
+        var displayedWordCount = 0;
+        var committedHTML = '';
+
+        function buildWordsHTML(words, startAnimatingFrom) {
+            var html = '';
+            for (var i = 0; i < words.length; i++) {
+                if (i >= startAnimatingFrom) {
+                    html += '<span class="word">' + escapeHtml(words[i]) + '</span> ';
+                } else {
+                    html += '<span class="word" style="animation:none;opacity:1;">' + escapeHtml(words[i]) + '</span> ';
+                }
+            }
+            return html;
+        }
+
+        function buildStaticHTML(words) {
+            var html = '';
+            for (var i = 0; i < words.length; i++) {
+                html += '<span class="word" style="animation:none;opacity:1;">' + escapeHtml(words[i]) + '</span> ';
+            }
+            return html;
+        }
+
+        function displayText(text, isFinal) {
+            var words = text.trim().split(/\s+/);
+            var currentHTML = buildWordsHTML(words, displayedWordCount);
+
+            // Step 1: Try committed + current
+            var fullHTML = committedHTML + currentHTML;
+
+            if (wouldFit(fullHTML)) {
+                // It fits — render it
+                captionText.innerHTML = fullHTML;
+                displayedWordCount = words.length;
+            } else {
+                // Doesn't fit — clear committed, try current alone
+                committedHTML = '';
+
+                if (wouldFit(currentHTML)) {
+                    captionText.innerHTML = currentHTML;
+                    displayedWordCount = words.length;
+                } else {
+                    // Even current alone is too big — clear everything
+                    captionText.innerHTML = '';
+                    displayedWordCount = 0;
+                }
+            }
+
+            // When sentence is finalized, commit it
+            if (isFinal) {
+                var finalHTML = buildStaticHTML(words);
+
+                // Check if committed + this final sentence fits
+                var newCommitted = committedHTML + finalHTML;
+
+                if (wouldFit(newCommitted)) {
+                    committedHTML = newCommitted;
+                    captionText.innerHTML = committedHTML;
+                } else {
+                    // Start fresh with just this sentence
+                    committedHTML = finalHTML;
+                    captionText.innerHTML = committedHTML;
+                }
+
+                displayedWordCount = 0;
+            }
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // SCREEN TRANSITIONS
+        // ============================================================
+
+        function enterCaptionMode() {
+            captionText.innerHTML = '';
+            captionMeasure.innerHTML = '';
+            committedHTML = '';
+            displayedWordCount = 0;
+            startScreen.classList.add('hidden');
+            captionScreen.classList.add('active');
+            exitBtn.classList.add('visible');
+            listeningDot.classList.add('active');
+            startListening();
+            requestWakeLock();
+        }
+
+        function exitCaptionMode() {
+            stopListening();
+            releaseWakeLock();
+            captionScreen.classList.remove('active');
+            exitBtn.classList.remove('visible');
+            listeningDot.classList.remove('active');
+            setTimeout(function() {
+                startScreen.classList.remove('hidden');
+                captionText.innerHTML = '';
+                captionMeasure.innerHTML = '';
+                committedHTML = '';
+                displayedWordCount = 0;
+            }, 300);
+        }
+
+        // ============================================================
+        // WAKE LOCK
+        // ============================================================
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock) {
+                wakeLock.release().catch(function() {});
+                wakeLock = null;
+            }
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible' && isListening) {
+                requestWakeLock();
+            }
+        });
+
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+
+        startBtn.addEventListener('click', enterCaptionMode);
+        exitBtn.addEventListener('click', exitCaptionMode);
+
+    })();
+    </script>
+</body>
+</html>
