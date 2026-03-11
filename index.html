@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="VISI — Real-time speech captioning">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="VISI">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>VISI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Libre+Baskerville:wght@700&family=Atkinson+Hyperlegible+Next:wght@700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'ChunkFive';
+            src: url('ChunkFive-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========================
+           THEME VARIABLES
+           ======================== */
+
+        :root {
+            --bg: #000000;
+            --text: #FFFFFF;
+            --text-secondary: #999999;
+            --text-tertiary: #666666;
+            --text-footer: #bbbbbb;
+            --btn-border: #FFFFFF;
+            --btn-shadow: rgba(255, 255, 255, 0.06);
+            --btn-shadow-hover: rgba(255, 255, 255, 0.12);
+            --panel-border: rgba(255, 255, 255, 0.15);
+            --pill-active-border: rgba(255, 255, 255, 0.6);
+            --pill-inactive: #666666;
+        }
+
+        .theme-light {
+            --bg: #FFFFFF;
+            --text: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --text-footer: #555555;
+            --btn-border: #000000;
+            --btn-shadow: rgba(0, 0, 0, 0.06);
+            --btn-shadow-hover: rgba(0, 0, 0, 0.12);
+            --panel-border: rgba(0, 0, 0, 0.15);
+            --pill-active-border: rgba(0, 0, 0, 0.6);
+            --pill-inactive: #999999;
+        }
+
+        /* ========================
+           SCREEN 1 — START
+           ======================== */
+
+        #start-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            z-index: 10;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        #start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .header-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .wordmark {
+            font-family: 'ChunkFive', Georgia, serif;
+            font-size: 3rem;
+            font-weight: normal;
+            letter-spacing: 0.08em;
+            color: var(--text);
+            user-select: none;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .start-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 1px solid var(--btn-border);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--btn-shadow);
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+
+        .start-btn:hover,
+        .start-btn:focus-visible {
+            box-shadow: 0 0 40px var(--btn-shadow-hover);
+        }
+
+        .start-btn:active {
+            transform: scale(0.97);
+        }
+
+        .start-btn-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: var(--text);
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .footer-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 300px;
+            flex-shrink: 0;
+        }
+
+        .footer-text {
+            color: var(--text-footer);
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+            line-height: 1.5;
+            text-align: center;
+            user-select: none;
+        }
+
+        /* Landscape adjustments for start screen */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #start-screen {
+                flex-direction: row;
+                justify-content: space-evenly;
+                align-items: center;
+                gap: 1.5rem;
+                padding: 1.5rem 3rem;
+            }
+            .start-btn {
+                width: 120px;
+                height: 120px;
+            }
+            .wordmark {
+                font-size: 2rem;
+            }
+            .footer-group {
+                max-width: 200px;
+            }
+            .footer-text {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* ========================
+           SCREEN 2 — CAPTIONING (Sentence mode)
+           ======================== */
+
+        #caption-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        #caption-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #caption-text {
+            position: absolute;
+            top: 6%;
+            left: 80px;
+            right: 8%;
+            font-size: 6vw;
+            font-weight: 700;
+            color: var(--text);
+            text-transform: uppercase;
+            text-align: left;
+            line-height: 1.3;
+            letter-spacing: 0.05em;
+            word-spacing: 0.1em;
+            user-select: none;
+            transition: color 0.3s ease;
+        }
+
+        @media (orientation: portrait) {
+            #caption-text {
+                top: 12%;
+            }
+        }
+
+        @media (orientation: landscape) {
+            #caption-text {
+                font-size: 8vw;
+            }
+        }
+
+        #caption-text.case-mixed {
+            text-transform: none;
+        }
+
+        #caption-text.font-classic {
+            font-family: 'Libre Baskerville', Georgia, serif;
+        }
+
+        #caption-text.font-accessible {
+            font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        .word-span {
+            display: inline;
+        }
+
+        .word-new {
+            display: inline;
+            animation: wordFadeIn 0.12s ease-out forwards;
+        }
+
+        @keyframes wordFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* ========================
+           SINGLE WORD MODE
+           ======================== */
+
+        #single-word {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 8%;
+        }
+
+        #single-word.active {
+            display: flex;
+        }
+
+        #single-word-text {
+            font-weight: 700;
+            color: var(--text);
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 0.05em;
+            user-select: none;
+            animation: wordFadeIn 0.1s ease-out forwards;
+            transition: color 0.3s ease;
+        }
+
+        #single-word-text.case-mixed {
+            text-transform: none;
+        }
+
+        #single-word-text.font-classic {
+            font-family: 'Libre Baskerville', Georgia, serif;
+        }
+
+        #single-word-text.font-accessible {
+            font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        /* ========================
+           CONTROL BUTTONS
+           ======================== */
+
+        .control-btn {
+            position: fixed;
+            z-index: 20;
+            width: 56px;
+            height: 56px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .control-btn.visible {
+            opacity: 0.6;
+            pointer-events: auto;
+        }
+
+        .control-btn:hover,
+        .control-btn:focus-visible {
+            opacity: 1;
+        }
+
+        .control-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .exit-btn {
+            top: 16px;
+            left: 16px;
+        }
+
+        .settings-btn {
+            top: 16px;
+            right: 16px;
+        }
+
+        /* ========================
+           SETTINGS PANEL
+           ======================== */
+
+        #settings-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 25;
+            background: var(--bg);
+            border-top: 1px solid var(--panel-border);
+            padding: 1.5rem 2rem 2rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        #settings-panel.open {
+            transform: translateY(0);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+        }
+
+        .settings-label {
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            user-select: none;
+            flex-shrink: 0;
+            min-width: 60px;
+        }
+
+        .settings-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .pill {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: var(--pill-inactive);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 100px;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            transition: color 0.2s ease, border-color 0.2s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .pill.active {
+            color: var(--text);
+            border-color: var(--pill-active-border);
+        }
+
+        .pill:hover {
+            color: var(--text);
+        }
+
+        #settings-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 24;
+            display: none;
+        }
+
+        #settings-backdrop.open {
+            display: block;
+        }
+
+        /* ========================
+           ERROR NOTIFICATION
+           ======================== */
+
+        #error-notice {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            background: var(--bg);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12% 2rem;
+            text-align: center;
+        }
+
+        #error-notice.show {
+            display: flex;
+        }
+
+        .error-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        .error-message {
+            font-size: 0.85rem;
+            color: var(--text-footer);
+            line-height: 1.6;
+            max-width: 300px;
+            margin-bottom: 2rem;
+        }
+
+        .error-back-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text);
+            background: transparent;
+            border: 1px solid var(--btn-border);
+            border-radius: 100px;
+            padding: 0.7rem 1.5rem;
+            cursor: pointer;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ========================
+           OTHER
+           ======================== */
+
+        #unsupported {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            color: #888;
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 15%;
+            text-align: center;
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #unsupported.show {
+            display: flex;
+        }
+
+        #unsupported strong {
+            color: #fff;
+            display: block;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .listening-dot {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .listening-dot.active {
+            opacity: 0.3;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.15; transform: translateX(-50%) scale(1); }
+            50%      { opacity: 0.35; transform: translateX(-50%) scale(1.3); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UNSUPPORTED BROWSER -->
+    <div id="unsupported">
+        <strong>VISI</strong>
+        This browser doesn't support speech recognition.<br>
+        Please open this page in <strong style="font-size:1rem; letter-spacing:0.1em; margin:0.5rem 0; display:inline;">Google Chrome</strong> on your phone or computer.
+    </div>
+
+    <!-- SCREEN 1 — START -->
+    <div id="start-screen">
+        <div class="header-group">
+            <div class="wordmark">visi</div>
+            <div class="tagline">Real-time captions</div>
+        </div>
+        <button class="start-btn" id="start-btn" aria-label="Start captioning">
+            <span class="start-btn-label">Turn on</span>
+        </button>
+        <div class="footer-group">
+            <div class="footer-text">A free tool that turns speech into visible text. Turn it on and go.</div>
+            <div class="footer-text">Audio is processed by your browser and is not recorded or stored.</div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2 — CAPTIONING -->
+    <div id="caption-screen">
+        <div id="caption-text"></div>
+        <div id="single-word">
+            <div id="single-word-text"></div>
+        </div>
+    </div>
+
+    <!-- ERROR NOTICE -->
+    <div id="error-notice">
+        <div class="error-title">Speech recognition unavailable</div>
+        <div class="error-message">Your device's speech recognition or microphone permissions may be turned off. Check your device settings and try again.</div>
+        <button class="error-back-btn" id="error-back-btn">Go back</button>
+    </div>
+
+    <!-- EXIT BUTTON -->
+    <button class="control-btn exit-btn" id="exit-btn" aria-label="Stop captioning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+    </button>
+
+    <!-- SETTINGS BUTTON -->
+    <button class="control-btn settings-btn" id="settings-btn" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+    </button>
+
+    <!-- SETTINGS BACKDROP -->
+    <div id="settings-backdrop"></div>
+
+    <!-- SETTINGS PANEL -->
+    <div id="settings-panel">
+        <div class="settings-row">
+            <span class="settings-label">Font</span>
+            <div class="settings-options" id="font-options">
+                <button class="pill active" data-font="clean">Clean</button>
+                <button class="pill" data-font="classic">Classic</button>
+                <button class="pill" data-font="accessible">Accessible</button>
+            </div>
+        </div>
+        <div class="settings-row">
+            <span class="settings-label">Case</span>
+            <div class="settings-options" id="case-options">
+                <button class="pill active" data-case="caps">Caps</button>
+                <button class="pill" data-case="mixed">Mixed</button>
+            </div>
+        </div>
+        <div class="settings-row">
+            <span class="settings-label">Display</span>
+            <div class="settings-options" id="display-options">
+                <button class="pill active" data-display="sentence">Sentence</button>
+                <button class="pill" data-display="word">Word</button>
+            </div>
+        </div>
+        <div class="settings-row">
+            <span class="settings-label">Theme</span>
+            <div class="settings-options" id="theme-options">
+                <button class="pill active" data-theme="dark">Dark</button>
+                <button class="pill" data-theme="light">Light</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LISTENING INDICATOR -->
+    <div class="listening-dot" id="listening-dot"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(function(err) {
+                console.warn('SW registration failed:', err);
+            });
+        }
+
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            document.getElementById('unsupported').classList.add('show');
+            document.getElementById('start-screen').style.display = 'none';
+            return;
+        }
+
+        var startScreen      = document.getElementById('start-screen');
+        var captionScreen    = document.getElementById('caption-screen');
+        var captionText      = document.getElementById('caption-text');
+        var singleWord       = document.getElementById('single-word');
+        var singleWordText   = document.getElementById('single-word-text');
+        var startBtn         = document.getElementById('start-btn');
+        var exitBtn          = document.getElementById('exit-btn');
+        var settingsBtn      = document.getElementById('settings-btn');
+        var settingsPanel    = document.getElementById('settings-panel');
+        var settingsBackdrop = document.getElementById('settings-backdrop');
+        var listeningDot     = document.getElementById('listening-dot');
+        var errorNotice      = document.getElementById('error-notice');
+        var errorBackBtn     = document.getElementById('error-back-btn');
+
+        var isListening  = false;
+        var recognition   = null;
+        var wakeLock      = null;
+        var settingsOpen  = false;
+
+        // ============================================================
+        // SETTINGS
+        // ============================================================
+
+        var currentFont    = 'clean';
+        var currentCase    = 'caps';
+        var currentTheme   = 'dark';
+        var currentDisplay = 'sentence';
+
+        function applyFont(font) {
+            currentFont = font;
+            // Sentence mode text
+            captionText.classList.remove('font-classic', 'font-accessible');
+            if (font === 'classic') captionText.classList.add('font-classic');
+            if (font === 'accessible') captionText.classList.add('font-accessible');
+            // Word mode text
+            singleWordText.classList.remove('font-classic', 'font-accessible');
+            if (font === 'classic') singleWordText.classList.add('font-classic');
+            if (font === 'accessible') singleWordText.classList.add('font-accessible');
+            updatePills('font-options', 'data-font', font);
+        }
+
+        function applyCase(textCase) {
+            currentCase = textCase;
+            if (textCase === 'mixed') {
+                captionText.classList.add('case-mixed');
+                singleWordText.classList.add('case-mixed');
+            } else {
+                captionText.classList.remove('case-mixed');
+                singleWordText.classList.remove('case-mixed');
+            }
+            updatePills('case-options', 'data-case', textCase);
+        }
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            if (theme === 'light') {
+                document.body.classList.add('theme-light');
+            } else {
+                document.body.classList.remove('theme-light');
+            }
+            updatePills('theme-options', 'data-theme', theme);
+        }
+
+        function applyDisplay(mode) {
+            currentDisplay = mode;
+            if (mode === 'word') {
+                captionText.style.display = 'none';
+                singleWord.classList.add('active');
+            } else {
+                captionText.style.display = '';
+                singleWord.classList.remove('active');
+            }
+            updatePills('display-options', 'data-display', mode);
+        }
+
+        function updatePills(containerId, attr, value) {
+            var container = document.getElementById(containerId);
+            var pills = container.querySelectorAll('.pill');
+            for (var i = 0; i < pills.length; i++) {
+                if (pills[i].getAttribute(attr) === value) {
+                    pills[i].classList.add('active');
+                } else {
+                    pills[i].classList.remove('active');
+                }
+            }
+        }
+
+        document.getElementById('font-options').addEventListener('click', function(e) {
+            var pill = e.target.closest('.pill');
+            if (pill) applyFont(pill.getAttribute('data-font'));
+        });
+
+        document.getElementById('case-options').addEventListener('click', function(e) {
+            var pill = e.target.closest('.pill');
+            if (pill) applyCase(pill.getAttribute('data-case'));
+        });
+
+        document.getElementById('theme-options').addEventListener('click', function(e) {
+            var pill = e.target.closest('.pill');
+            if (pill) applyTheme(pill.getAttribute('data-theme'));
+        });
+
+        document.getElementById('display-options').addEventListener('click', function(e) {
+            var pill = e.target.closest('.pill');
+            if (pill) applyDisplay(pill.getAttribute('data-display'));
+        });
+
+        function toggleSettings() {
+            settingsOpen = !settingsOpen;
+            if (settingsOpen) {
+                settingsPanel.classList.add('open');
+                settingsBackdrop.classList.add('open');
+            } else {
+                settingsPanel.classList.remove('open');
+                settingsBackdrop.classList.remove('open');
+            }
+        }
+
+        function closeSettings() {
+            if (settingsOpen) {
+                settingsOpen = false;
+                settingsPanel.classList.remove('open');
+                settingsBackdrop.classList.remove('open');
+            }
+        }
+
+        settingsBtn.addEventListener('click', toggleSettings);
+        settingsBackdrop.addEventListener('click', closeSettings);
+
+        // ============================================================
+        // ERROR NOTIFICATION
+        // ============================================================
+
+        function showError() {
+            exitCaptionMode();
+            errorNotice.classList.add('show');
+        }
+
+        function hideError() {
+            errorNotice.classList.remove('show');
+        }
+
+        errorBackBtn.addEventListener('click', hideError);
+
+        // ============================================================
+        // MODULE 1: Speech Input
+        // ============================================================
+
+        function createRecognition() {
+            var rec = new SpeechRecognition();
+            rec.continuous       = true;
+            rec.interimResults   = true;
+            rec.lang             = 'en-US';
+            rec.maxAlternatives  = 1;
+
+            rec.onresult = function(event) {
+                var parts = [];
+                for (var i = 0; i < event.results.length; i++) {
+                    parts.push(event.results[i][0].transcript);
+                }
+                var fullText = parts.join(' ');
+
+                if (currentDisplay === 'word') {
+                    displaySingleWord(fullText);
+                } else {
+                    displayWords(fullText);
+                }
+            };
+
+            rec.onend = function() {
+                if (isListening) {
+                    try { rec.start(); } catch(e) {}
+                }
+            };
+
+            rec.onerror = function(event) {
+                if (event.error === 'no-speech' || event.error === 'aborted') return;
+                if (event.error === 'not-allowed' || event.error === 'service-not-available' || event.error === 'audio-capture') {
+                    showError();
+                    return;
+                }
+            };
+
+            return rec;
+        }
+
+        function startListening() {
+            recognition = createRecognition();
+            isListening = true;
+            try { recognition.start(); } catch(e) {
+                showError();
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+                recognition = null;
+            }
+        }
+
+        // ============================================================
+        // MODULE 2: Text Processing (translation slots in here later)
+        // ============================================================
+
+        // Currently passes through.
+
+        // ============================================================
+        // MODULE 3A: Sentence Display
+        // ============================================================
+
+        var allWords = [];
+        var pageStartIndex = 0;
+        var prevWordCount = 0;
+
+        function getBottomLimit() {
+            if (settingsOpen) {
+                var panelRect = settingsPanel.getBoundingClientRect();
+                return panelRect.top - 20;
+            }
+            return window.innerHeight * 0.94;
+        }
+
+        function displayWords(fullText) {
+            var words = fullText.trim().split(/\s+/).filter(function(w) { return w.length > 0; });
+            if (words.length === 0) return;
+
+            allWords = words;
+            renderPage();
+        }
+
+        function renderPage() {
+            var html = '';
+            var wordsOnPage = allWords.slice(pageStartIndex);
+
+            for (var i = 0; i < wordsOnPage.length; i++) {
+                var globalIndex = pageStartIndex + i;
+                if (globalIndex >= prevWordCount) {
+                    html += '<span class="word-new" id="w' + globalIndex + '">' + escapeHtml(wordsOnPage[i]) + '</span> ';
+                } else {
+                    html += '<span class="word-span" id="w' + globalIndex + '">' + escapeHtml(wordsOnPage[i]) + '</span> ';
+                }
+            }
+
+            captionText.innerHTML = html;
+            prevWordCount = allWords.length;
+
+            var lastWordIndex = allWords.length - 1;
+            var lastWordEl = document.getElementById('w' + lastWordIndex);
+
+            if (lastWordEl) {
+                var rect = lastWordEl.getBoundingClientRect();
+
+                if (rect.bottom > getBottomLimit()) {
+                    var newPageStart = allWords.length - 1;
+
+                    for (var j = allWords.length - 1; j >= pageStartIndex; j--) {
+                        var el = document.getElementById('w' + j);
+                        if (el) {
+                            var r = el.getBoundingClientRect();
+                            if (r.bottom <= getBottomLimit()) {
+                                newPageStart = j + 1;
+                                break;
+                            }
+                        }
+                    }
+
+                    pageStartIndex = newPageStart;
+
+                    var newHtml = '';
+                    var newWordsOnPage = allWords.slice(pageStartIndex);
+                    for (var k = 0; k < newWordsOnPage.length; k++) {
+                        newHtml += '<span class="word-new" id="w' + (pageStartIndex + k) + '">' + escapeHtml(newWordsOnPage[k]) + '</span> ';
+                    }
+                    captionText.innerHTML = newHtml;
+                }
+            }
+        }
+
+        // ============================================================
+        // MODULE 3B: Single Word Display
+        // ============================================================
+
+        var lastDisplayedWord = '';
+
+        function displaySingleWord(fullText) {
+            var words = fullText.trim().split(/\s+/).filter(function(w) { return w.length > 0; });
+            if (words.length === 0) return;
+
+            var latestWord = words[words.length - 1];
+
+            // Only update if the word changed
+            if (latestWord === lastDisplayedWord) return;
+            lastDisplayedWord = latestWord;
+
+            // Size the word: base size for ~6 chars, scale down for longer words
+            var baseSize = Math.min(window.innerWidth, window.innerHeight) * 0.25;
+            var charCount = latestWord.length;
+            var fontSize;
+
+            if (charCount <= 6) {
+                fontSize = baseSize;
+            } else {
+                // Scale down proportionally, with a floor
+                fontSize = Math.max(baseSize * (6 / charCount), baseSize * 0.35);
+            }
+
+            singleWordText.style.fontSize = fontSize + 'px';
+            singleWordText.textContent = latestWord;
+
+            // Re-trigger fade animation
+            singleWordText.style.animation = 'none';
+            singleWordText.offsetHeight; // Force reflow
+            singleWordText.style.animation = '';
+        }
+
+        // ============================================================
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // SCREEN TRANSITIONS
+        // ============================================================
+
+        function enterCaptionMode() {
+            allWords = [];
+            pageStartIndex = 0;
+            prevWordCount = 0;
+            lastDisplayedWord = '';
+            captionText.innerHTML = '';
+            singleWordText.textContent = '';
+            startScreen.classList.add('hidden');
+            captionScreen.classList.add('active');
+            exitBtn.classList.add('visible');
+            settingsBtn.classList.add('visible');
+            listeningDot.classList.add('active');
+            startListening();
+            requestWakeLock();
+        }
+
+        function exitCaptionMode() {
+            stopListening();
+            releaseWakeLock();
+            closeSettings();
+            captionScreen.classList.remove('active');
+            exitBtn.classList.remove('visible');
+            settingsBtn.classList.remove('visible');
+            listeningDot.classList.remove('active');
+            setTimeout(function() {
+                startScreen.classList.remove('hidden');
+                allWords = [];
+                pageStartIndex = 0;
+                prevWordCount = 0;
+                lastDisplayedWord = '';
+                captionText.innerHTML = '';
+                singleWordText.textContent = '';
+            }, 300);
+        }
+
+        // ============================================================
+        // WAKE LOCK
+        // ============================================================
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock) {
+                wakeLock.release().catch(function() {});
+                wakeLock = null;
+            }
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible' && isListening) {
+                requestWakeLock();
+            }
+        });
+
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+
+        startBtn.addEventListener('click', enterCaptionMode);
+        exitBtn.addEventListener('click', exitCaptionMode);
+
+    })();
+    </script>
+</body>
+</html>
