@@ -23,6 +23,14 @@
             font-display: swap;
         }
 
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('OpenDyslexic-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         *, *::before, *::after {
             margin: 0;
             padding: 0;
@@ -327,8 +335,12 @@
             font-family: 'Libre Baskerville', Georgia, serif;
         }
 
-        #caption-text.font-accessible {
+        #caption-text.font-low-vision {
             font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        #caption-text.font-dyslexic {
+            font-family: 'OpenDyslexic', sans-serif;
         }
 
         .word-span {
@@ -381,8 +393,12 @@
             font-family: 'Libre Baskerville', Georgia, serif;
         }
 
-        #single-word-text.font-accessible {
+        #single-word-text.font-low-vision {
             font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        #single-word-text.font-dyslexic {
+            font-family: 'OpenDyslexic', sans-serif;
         }
 
         /* ========================
