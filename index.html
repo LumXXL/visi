@@ -475,9 +475,14 @@
 
         .settings-row {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            padding: 0.7rem 0;
+            padding: 0.75rem 0;
+            border-top: 1px solid rgba(128, 128, 128, 0.15);
+        }
+
+        .settings-row:first-child {
+            border-top: none;
         }
 
         .settings-label {
@@ -489,6 +494,7 @@
             user-select: none;
             flex-shrink: 0;
             min-width: 60px;
+            padding-top: 0.45rem;
         }
 
         .settings-options {
