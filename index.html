@@ -791,6 +791,15 @@
                 <button class="pill" data-theme="light">Light</button>
             </div>
         </div>
+        <div class="settings-row">
+            <span class="settings-label">Language</span>
+            <div class="settings-options" id="lang-options">
+                <button class="pill active" data-lang="en-US">English</button>
+                <button class="pill" data-lang="fr-FR">French</button>
+                <button class="pill" data-lang="nl-NL">Dutch</button>
+                <button class="pill" data-lang="es-ES">Spanish</button>
+            </div>
+        </div>
     </div>
 
     <!-- LISTENING INDICATOR -->
@@ -850,6 +859,7 @@
         var currentCase    = 'caps';
         var currentTheme   = 'dark';
         var currentDisplay = 'sentence';
+        var currentLang    = 'en-US';
 
         function applyFont(font) {
             currentFont = font;
@@ -898,6 +908,24 @@
             updatePills('display-options', 'data-display', mode);
         }
 
+        function applyLang(lang) {
+            currentLang = lang;
+            if (isListening) {
+                // Step 1: suppress onend auto-restart on the old instance
+                isListening = false;
+                // Step 2: stop and discard old instance
+                if (recognition) {
+                    try { recognition.stop(); } catch(e) {}
+                    recognition = null;
+                }
+                // Step 3: re-enable, create and start new instance with new lang
+                isListening = true;
+                recognition = createRecognition();
+                try { recognition.start(); } catch(e) { showError(); }
+            }
+            updatePills('lang-options', 'data-lang', lang);
+        }
+
         function updatePills(containerId, attr, value) {
             var container = document.getElementById(containerId);
             var pills = container.querySelectorAll('.pill');
@@ -928,6 +956,11 @@
         document.getElementById('display-options').addEventListener('click', function(e) {
             var pill = e.target.closest('.pill');
             if (pill) applyDisplay(pill.getAttribute('data-display'));
+        });
+
+        document.getElementById('lang-options').addEventListener('click', function(e) {
+            var pill = e.target.closest('.pill');
+            if (pill) applyLang(pill.getAttribute('data-lang'));
         });
 
         function toggleSettings() {
@@ -1027,7 +1060,7 @@
             var rec = new SpeechRecognition();
             rec.continuous       = true;
             rec.interimResults   = true;
-            rec.lang             = 'en-US';
+            rec.lang             = currentLang;
             rec.maxAlternatives  = 1;
 
             rec.onresult = function(event) {
