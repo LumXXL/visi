@@ -1,8 +1,9 @@
-var CACHE_NAME = 'visi-v7';
+var CACHE_NAME = 'visi-v8';
 var URLS_TO_CACHE = [
     '/',
     '/index.html',
     '/ChunkFive-Regular.otf',
+    '/OpenDyslexic-Regular.otf',
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png'
