@@ -975,9 +975,10 @@
         var infoClose    = document.getElementById('info-close');
         var copyEmailBtn = document.getElementById('copy-email-btn');
 
-        var isListening  = false;
-        var recognition   = null;
-        var wakeLock      = null;
+        var isListening    = false;
+        var recognition    = null;
+        var recognitionGen = 0;
+        var wakeLock       = null;
         var settingsOpen  = false;
         var finalizedText = '';   // accumulates final (confirmed) transcripts across events
 
@@ -1208,6 +1209,7 @@
         // ============================================================
 
         function createRecognition() {
+            var gen = ++recognitionGen;
             var rec = new SpeechRecognition();
             rec.continuous       = true;
             rec.interimResults   = true;
@@ -1238,7 +1240,7 @@
             };
 
             rec.onend = function() {
-                if (isListening) {
+                if (isListening && gen === recognitionGen) {
                     try { rec.start(); } catch(e) {}
                 }
             };
