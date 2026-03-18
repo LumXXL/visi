@@ -694,6 +694,111 @@
         #android-tone-dismiss:focus-visible {
             opacity: 1;
         }
+
+        /* ========================
+           INFO MODAL
+           ======================== */
+
+        #info-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        #info-btn:hover {
+            color: var(--text);
+        }
+
+        #info-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .theme-light #info-modal {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        #info-modal.open {
+            display: flex;
+        }
+
+        #info-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 300px;
+            width: 90%;
+            position: relative;
+        }
+
+        /* Card is intentionally always dark regardless of theme */
+
+        #info-card p {
+            color: #ffffff;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        #info-disclaimer {
+            color: #999999;
+        }
+
+        #info-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #666666;
+            font-size: 1.1rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.2rem;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        #info-close:hover {
+            color: #aaaaaa;
+        }
+
+        #copy-email-btn {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.5rem;
+            background: transparent;
+            border: 1px solid #444444;
+            border-radius: 100px;
+            color: #aaaaaa;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        #copy-email-btn:hover {
+            color: #ffffff;
+            border-color: #888888;
+        }
     </style>
 </head>
 <body>
@@ -722,6 +827,18 @@
                 <div class="footer-detail"><a href="https://www.instagram.com/sanaganprojects" target="_blank" rel="noopener">@sanaganprojects</a></div>
             </div>
             <div class="footer-version">v1</div>
+        </div>
+        <button id="info-btn" aria-label="About VISI">?</button>
+    </div>
+
+    <!-- INFO MODAL -->
+    <div id="info-modal" role="dialog" aria-modal="true" aria-label="About VISI">
+        <div id="info-card">
+            <button id="info-close" aria-label="Close">✕</button>
+            <p>visi is a free tool to help people communicate with clients, colleagues, family, and friends.</p>
+            <p>Currently supports English, French, Dutch, and Spanish captioning. Fonts optimized for low vision and dyslexia.</p>
+            <p id="info-disclaimer"><strong>This is a prototype.</strong> If you have concerns, bugs, or ideas, please get in touch via email. :-)</p>
+            <button id="copy-email-btn">Copy email</button>
         </div>
     </div>
 
@@ -844,6 +961,10 @@
         var errorBackBtn     = document.getElementById('error-back-btn');
         var androidBanner    = document.getElementById('android-tone-banner');
         var androidDismiss   = document.getElementById('android-tone-dismiss');
+        var infoModal    = document.getElementById('info-modal');
+        var infoBtn      = document.getElementById('info-btn');
+        var infoClose    = document.getElementById('info-close');
+        var copyEmailBtn = document.getElementById('copy-email-btn');
 
         var isListening  = false;
         var recognition   = null;
@@ -984,6 +1105,27 @@
 
         settingsBtn.addEventListener('click', toggleSettings);
         settingsBackdrop.addEventListener('click', closeSettings);
+
+        // ============================================================
+        // INFO MODAL
+        // ============================================================
+
+        function openInfoModal()  { infoModal.classList.add('open'); }
+        function closeInfoModal() { infoModal.classList.remove('open'); }
+
+        infoBtn.addEventListener('click', openInfoModal);
+        infoClose.addEventListener('click', closeInfoModal);
+
+        infoModal.addEventListener('click', function(e) {
+            if (e.target === infoModal) closeInfoModal();
+        });
+
+        copyEmailBtn.addEventListener('click', function() {
+            navigator.clipboard.writeText('liam@sanaganprojects.com').then(function() {
+                copyEmailBtn.textContent = 'Copied!';
+                setTimeout(function() { copyEmailBtn.textContent = 'Copy email'; }, 2000);
+            });
+        });
 
         // ============================================================
         // ERROR NOTIFICATION
