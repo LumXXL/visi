@@ -766,7 +766,8 @@
             <div class="settings-options" id="font-options">
                 <button class="pill active" data-font="clean">Clean</button>
                 <button class="pill" data-font="classic">Classic</button>
-                <button class="pill" data-font="accessible">Accessible</button>
+                <button class="pill" data-font="low-vision">Low Vision</button>
+                <button class="pill" data-font="dyslexic">Dyslexic</button>
             </div>
         </div>
         <div class="settings-row">
@@ -852,14 +853,14 @@
 
         function applyFont(font) {
             currentFont = font;
-            // Sentence mode text
-            captionText.classList.remove('font-classic', 'font-accessible');
-            if (font === 'classic') captionText.classList.add('font-classic');
-            if (font === 'accessible') captionText.classList.add('font-accessible');
-            // Word mode text
-            singleWordText.classList.remove('font-classic', 'font-accessible');
-            if (font === 'classic') singleWordText.classList.add('font-classic');
-            if (font === 'accessible') singleWordText.classList.add('font-accessible');
+            captionText.classList.remove('font-classic', 'font-low-vision', 'font-dyslexic');
+            if (font === 'classic')    captionText.classList.add('font-classic');
+            if (font === 'low-vision') captionText.classList.add('font-low-vision');
+            if (font === 'dyslexic')   captionText.classList.add('font-dyslexic');
+            singleWordText.classList.remove('font-classic', 'font-low-vision', 'font-dyslexic');
+            if (font === 'classic')    singleWordText.classList.add('font-classic');
+            if (font === 'low-vision') singleWordText.classList.add('font-low-vision');
+            if (font === 'dyslexic')   singleWordText.classList.add('font-dyslexic');
             updatePills('font-options', 'data-font', font);
         }
 
@@ -1174,8 +1175,9 @@
         var measureCtx = measureCanvas.getContext('2d');
 
         function getActiveFont() {
-            if (currentFont === 'classic') return "'Libre Baskerville', Georgia, serif";
-            if (currentFont === 'accessible') return "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif";
+            if (currentFont === 'classic')    return "'Libre Baskerville', Georgia, serif";
+            if (currentFont === 'low-vision') return "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', sans-serif";
+            if (currentFont === 'dyslexic')   return "'OpenDyslexic', sans-serif";
             return "'Inter', sans-serif";
         }
 
