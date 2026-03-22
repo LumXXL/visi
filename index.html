@@ -824,7 +824,41 @@
             color: #aaaaaa;
         }
 
-        #copy-email-btn {
+        .info-action-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .info-action-row .info-btn {
+            flex: 1;
+            padding: 0.55rem 0.3rem;
+            background: transparent;
+            border: 1px solid #444444;
+            border-radius: 100px;
+            color: #aaaaaa;
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .info-action-row .info-btn:hover {
+            color: #ffffff;
+            border-color: #888888;
+        }
+
+        /* APP STORE NOTE: Remove #kofi-btn CSS block before App Store submission */
+        #kofi-btn {
+            display: block;
             width: 100%;
             padding: 0.6rem;
             margin-top: 0.5rem;
@@ -833,15 +867,18 @@
             border-radius: 100px;
             color: #aaaaaa;
             font-size: 0.7rem;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.08em;
             font-family: 'Inter', sans-serif;
             cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             outline: none;
             transition: color 0.2s ease, border-color 0.2s ease;
         }
 
-        #copy-email-btn:hover {
+        #kofi-btn:hover {
             color: #ffffff;
             border-color: #888888;
         }
@@ -883,8 +920,14 @@
             <button id="info-close" aria-label="Close">✕</button>
             <p>VISI is a free tool to help people communicate with clients, colleagues, family, and friends.</p>
             <p>Currently supports captioning in 10 languages. Fonts optimized for low vision and dyslexia.</p>
-            <p id="info-disclaimer">If you have concerns, bugs, or ideas, please get in touch via email. :-)</p>
-            <button id="copy-email-btn">Copy email</button>
+            <p id="info-disclaimer">If you have concerns, bugs, or ideas, please get in touch. :-)</p>
+            <div class="info-action-row">
+                <a class="info-btn" href="https://mail.google.com/mail/?view=cm&to=liam@sanaganprojects.com" target="_blank" rel="noopener">Gmail</a>
+                <a class="info-btn" href="https://outlook.live.com/mail/0/deeplink/compose?to=liam@sanaganprojects.com" target="_blank" rel="noopener">Outlook</a>
+                <a class="info-btn" href="mailto:liam@sanaganprojects.com">Other</a>
+            </div>
+            <!-- APP STORE NOTE: Remove Ko-fi button before App Store submission — violates Apple guideline 3.1.1 (IAP requirement) -->
+            <a id="kofi-btn" href="https://ko-fi.com/sanaganprojects" target="_blank" rel="noopener">☕ Buy me a coffee</a>
         </div>
     </div>
 
@@ -1022,7 +1065,6 @@
         var infoModal    = document.getElementById('info-modal');
         var infoBtn      = document.getElementById('info-btn');
         var infoClose    = document.getElementById('info-close');
-        var copyEmailBtn = document.getElementById('copy-email-btn');
 
         var isListening    = false;
         var recognition    = null;
@@ -1174,12 +1216,6 @@
             if (e.target === infoModal) closeInfoModal();
         });
 
-        copyEmailBtn.addEventListener('click', function() {
-            navigator.clipboard.writeText('liam@sanaganprojects.com').then(function() {
-                copyEmailBtn.textContent = 'Copied!';
-                setTimeout(function() { copyEmailBtn.textContent = 'Copy email'; }, 2000);
-            });
-        });
 
         // ============================================================
         // ERROR NOTIFICATION
