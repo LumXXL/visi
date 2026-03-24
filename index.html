@@ -909,7 +909,7 @@
                 <div class="footer-detail mobile-only">Add to home screen for full screen.</div>
                 <div class="footer-detail"><a href="https://www.instagram.com/sanaganprojects" target="_blank" rel="noopener">@sanaganprojects</a></div>
             </div>
-            <div class="footer-version">v1</div>
+            <div class="footer-version" id="footer-version">v1</div>
         </div>
         <button id="info-btn" aria-label="About VISI">?</button>
     </div>
@@ -1033,6 +1033,8 @@
     (function() {
         'use strict';
 
+        var APP_VERSION = '1.01';
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(function(err) {
                 console.warn('SW registration failed:', err);
@@ -1065,6 +1067,8 @@
         var infoModal    = document.getElementById('info-modal');
         var infoBtn      = document.getElementById('info-btn');
         var infoClose    = document.getElementById('info-close');
+
+        document.getElementById('footer-version').textContent = 'v' + APP_VERSION;
 
         var isListening    = false;
         var recognition    = null;
