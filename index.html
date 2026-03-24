@@ -1089,7 +1089,7 @@
 
     <!-- ANDROID TONE BANNER (shown once per session on Android) -->
     <div id="android-tone-banner" role="status" aria-live="polite">
-        <span>Hearing a tone? On Samsung: <strong>Settings → General Management → Keyboard → Voice Input</strong> → turn off sound feedback.</span>
+        <span>Hearing a sound? Try: <strong>Settings → search "Voice Input"</strong> → disable sound feedback.</span>
         <button id="android-tone-dismiss" aria-label="Dismiss">✕</button>
     </div>
 
@@ -1347,16 +1347,17 @@
 
         // Android tone banner — shown once per session on Android devices
         var isAndroidDevice = /Android/.test(navigator.userAgent);
+        var androidBannerDismissed = false;
 
         function maybeShowAndroidBanner() {
             if (!isAndroidDevice) return;
-            if (sessionStorage.getItem('visi-tone-banner-dismissed')) return;
+            if (androidBannerDismissed) return;
             androidBanner.classList.add('show');
         }
 
         androidDismiss.addEventListener('click', function() {
             androidBanner.classList.remove('show');
-            sessionStorage.setItem('visi-tone-banner-dismissed', '1');
+            androidBannerDismissed = true;
         });
 
         // ============================================================
