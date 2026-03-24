@@ -11,6 +11,8 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <title>VISI</title>
+    <!-- Detect Instagram in-app browser before first paint to avoid flash -->
+    <script>if(/Instagram/i.test(navigator.userAgent))document.documentElement.classList.add('ig-browser');</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700&family=Libre+Baskerville:wght@700&family=Atkinson+Hyperlegible+Next:wght@700&display=swap" rel="stylesheet">
@@ -101,6 +103,60 @@
         #start-screen.hidden {
             opacity: 0;
             pointer-events: none;
+        }
+
+        /* ========================
+           INSTAGRAM BROWSER GATE
+           ======================== */
+
+        .ig-browser #start-screen { display: none !important; }
+
+        #ig-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            z-index: 10;
+            padding: 2.5rem;
+            gap: 1.2rem;
+            text-align: center;
+        }
+
+        .ig-browser #ig-screen { display: flex; }
+
+        #ig-screen .wordmark {
+            margin-bottom: 0.5rem;
+        }
+
+        .ig-message {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .ig-instruction {
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 280px;
+        }
+
+        #ig-arrow {
+            position: absolute;
+            top: 14%;
+            right: 7%;
+            font-size: 2.2rem;
+            color: var(--text);
+            animation: igBounce 1.6s ease-in-out infinite;
+        }
+
+        @keyframes igBounce {
+            0%, 100% { transform: translate(0, 0);    opacity: 0.5; }
+            50%       { transform: translate(5px, -5px); opacity: 1;   }
         }
 
         .header-group {
@@ -914,6 +970,14 @@
         <button id="info-btn" aria-label="About VISI">?</button>
     </div>
 
+    <!-- INSTAGRAM BROWSER GATE -->
+    <div id="ig-screen">
+        <div class="wordmark">VISI</div>
+        <p class="ig-message">Instagram's browser doesn't support microphone access.</p>
+        <p class="ig-instruction">Tap ⋯ above and choose<br>"Open in Browser" to use VISI.</p>
+        <div id="ig-arrow">↗</div>
+    </div>
+
     <!-- INFO MODAL -->
     <div id="info-modal" role="dialog" aria-modal="true" aria-label="About VISI">
         <div id="info-card">
@@ -1034,6 +1098,13 @@
         'use strict';
 
         var APP_VERSION = '1.01';
+
+        // Instagram in-app browser — Web Speech API not supported
+        if (/Instagram/i.test(navigator.userAgent)) {
+            var storedTheme = localStorage.getItem('visi-theme');
+            if (storedTheme === 'light') document.body.classList.add('theme-light');
+            return;
+        }
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(function(err) {
