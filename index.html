@@ -1307,14 +1307,27 @@
             return 'other';
         }
 
+        function getIOSVersion() {
+            var m = navigator.userAgent.match(/OS (\d+)_/);
+            return m ? parseInt(m[1], 10) : 0;
+        }
+
         function getPermissionInstructions() {
             var p = detectPlatform();
             if (p === 'ios-safari') {
+                if (getIOSVersion() >= 18) {
+                    return 'To allow microphone access:<br><br>' +
+                        '1. Open the <strong>Settings</strong> app<br>' +
+                        '2. Tap <strong>Apps → Safari</strong> (or scroll to Safari)<br>' +
+                        '3. Tap <strong>Settings for Websites → Microphone</strong><br>' +
+                        '4. Find <strong>visiblespeech.app</strong> → set to <strong>Allow</strong><br>' +
+                        '5. Return to VISI and tap <strong>Turn On</strong> again';
+                }
                 return 'To allow microphone access:<br><br>' +
                     '1. Tap <strong>Aa</strong> in the Safari address bar<br>' +
                     '2. Tap <strong>Website Settings</strong><br>' +
                     '3. Set <strong>Microphone</strong> to <strong>Allow</strong><br>' +
-                    '4. Tap <strong>Turn on</strong> again';
+                    '4. Tap <strong>Turn On</strong> again';
             }
             if (p === 'android') {
                 return 'To allow microphone access:<br><br>' +
