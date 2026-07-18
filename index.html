@@ -327,15 +327,6 @@
             color: var(--text);
         }
 
-        .footer-detail.mobile-only {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .footer-detail.mobile-only {
-                display: block;
-            }
-        }
 
         .footer-text {
             color: var(--text-footer);
@@ -835,8 +826,9 @@
 
         #info-btn {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            bottom: 3.6rem;
+            left: 50%;
+            transform: translateX(-50%);
             width: 56px;
             height: 56px;
             background: none;
@@ -998,7 +990,6 @@
                 <div class="footer-headline">A free tool that turns speech into visible text.</div>
                 <div class="footer-details">
                     <div class="footer-detail">Audio is not recorded or stored.</div>
-                    <div class="footer-detail mobile-only">Add to home screen for full screen.</div>
                     <div class="footer-detail"><a href="https://www.instagram.com/sanaganprojects" target="_blank" rel="noopener">@sanaganprojects</a></div>
                 </div>
             </div>
@@ -1021,9 +1012,9 @@
             </button>
         </div>
 
-        <a class="privacy-link" href="/privacy">Privacy</a>
-
         <button id="info-btn" aria-label="About VISI">?</button>
+
+        <a class="privacy-link" href="/privacy">Privacy</a>
     </div>
 
     <!-- INSTAGRAM BROWSER GATE -->
