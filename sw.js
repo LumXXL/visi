@@ -1,4 +1,4 @@
-var CACHE_NAME = 'visi-v16';
+var CACHE_NAME = 'visi-v17';
 var URLS_TO_CACHE = [
     '/',
     '/index.html',
